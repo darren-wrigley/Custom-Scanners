@@ -5,7 +5,7 @@
 
   <groupId>com.infa.edc.scanner.denodo</groupId>
   <artifactId>DenodoScanner</artifactId>
-  <version>1.1.010-SNAPSHOT</version>
+  <version>1.1.010-SNAPSHOT-CDGC_JDBC_INTEGRATION</version>
 
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -62,7 +62,7 @@
               <!-- we are not storing the version for the zip file - to allow for a single wget to
               get the latest version 
 							-->
-              <finalName>${project.artifactId}</finalName>
+              <finalName>${project.artifactId}-CDGC-JDBC_Integration</finalName>
               <outputDirectory>${project.basedir}/packaged</outputDirectory>
             </configuration>
           </execution>
@@ -83,7 +83,7 @@
             </goals>
             <configuration>
               <sourceFile>${project.basedir}/packaged/${project.artifactId}.zip</sourceFile>
-              <destinationFile>${project.basedir}/packaged/Denodo-Custom-Scanner-1.1.010.zip</destinationFile>
+              <destinationFile>${project.basedir}/packaged/Denodo-Custom-Scanner-1.1.010_CDGC_JDBC_Integration.zip</destinationFile>
             </configuration>
           </execution>
         </executions>

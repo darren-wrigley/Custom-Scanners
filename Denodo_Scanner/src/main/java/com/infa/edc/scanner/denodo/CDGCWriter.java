@@ -228,7 +228,7 @@ public class CDGCWriter {
         }
 
         protected void createDatabase(String dbName) {
-                System.out.println("\tcreating database: " + dbName);
+                // System.out.println("\tcreating database: " + dbName);
 
                 try {
                         dbWriter.writeNext(new String[] { dbName, "", "TRUE", dbName, "" },
@@ -362,9 +362,10 @@ public class CDGCWriter {
                 String wrappedTable = wrapperObj.getRelation();
                 String wrapperType = wrapperObj.getType();
 
-                System.out.println("creating CDGC ref objects for " + dbName + "." + schemaName + "." + tableName
-                                + " with "
-                                + columns.size() + "columns");
+                // System.out.println("creating CDGC ref objects for " + dbName + "." +
+                // schemaName + "." + tableName
+                // + " with "
+                // + columns.size() + "columns");
 
                 if (wrapperObj.getSqlSentance() != null) {
                         // skip??
@@ -379,8 +380,9 @@ public class CDGCWriter {
                 }
 
                 String conectionName = wrapperObj.getDataSource() + "__" + wrapperObj.getType();
-                System.out.println("connection name: " + conectionName + " wrappedSch=" + wrappedSchema
-                                + " wrappedTable=" + wrappedTable);
+                // System.out.println("connection name: " + conectionName + " wrappedSch=" +
+                // wrappedSchema
+                // + " wrappedTable=" + wrappedTable);
 
                 String dataSourceId = conectionName + "." + wrappedSchema;
                 // add schema data source only if not already there

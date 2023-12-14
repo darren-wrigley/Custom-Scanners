@@ -44,6 +44,7 @@ public class CDGCWriterExternalOnly {
         protected CSVWriter hybridDataSetWriter = null;
         protected CSVWriter hybridDataElementWriter = null;
         protected CSVWriter hybridResourceWriter = null;
+        protected CSVWriter linksDenodoOnlyByIdWriter = null;
 
         protected String RELATIONAL_PACKAGE = "com.infa.odin.models.relational";
         protected String DB_FILENAME = RELATIONAL_PACKAGE + ".Database.csv";
@@ -53,13 +54,15 @@ public class CDGCWriterExternalOnly {
         protected String VIEW_FILENAME = RELATIONAL_PACKAGE + ".View.csv";
         protected String VIEWCOL_FILENAME = RELATIONAL_PACKAGE + ".ViewColumn.csv";
         protected String LINKS_FILENAME = "links.csv";
+        protected String INTERNAL_ONLY_LINKS_FILENAME = "links_internal_id_only.csv";
 
         protected String REF_RESOURCE_FILENAME = "core.Resource.csv";
         protected String REF_DATASOURCE_FILENAME = "core.DataSource.csv";
         protected String REF_DATASET_FILENAME = "core.DataSet.csv";
         protected String REF_DATAELEMENT_FILENAME = "core.DataElement.csv";
 
-        protected String idLineageFolder = "cdgc_id_lineage";
+        protected String idLineageFolder = "cdgc_id_lineage_hybrid";
+        protected String idInternalOnlyLineageFolder = "cdgc_id_lineage_internal";
 
         static Boolean APPLY_QUOTES_TO_ALL = false;
 
@@ -94,71 +97,26 @@ public class CDGCWriterExternalOnly {
                                 System.out.println("\tfolder: " + this.outFolder + " does not exist, creating it");
                                 directory.mkdir();
                         }
-                        File lineageByIdFolder = new File(String.valueOf(this.outFolder + "/cdgc_id_lineage"));
+                        File lineageByIdFolder = new File(String.valueOf(this.outFolder + "/" + idLineageFolder));
                         if (!lineageByIdFolder.exists()) {
-                                System.out.println("\tfolder: " + this.outFolder + "/cdgc_id_lineage"
-                                                + " does not exist, creating it");
+                                System.out.println("\tfolder: " + this.outFolder + "/" + idLineageFolder +
+                                                " does not exist, creating it");
                                 lineageByIdFolder.mkdir();
                         }
-                        /**
-                         * don;t need relational model objects - reference only
-                         * dbWriter = new CSVWriter(
-                         * new BufferedWriter(new FileWriter(this.outFolder + "/" + DB_FILENAME))
-                         * // CSVWriter.DEFAULT_SEPARATOR,
-                         * // CSVWriter.NO_QUOTE_CHARACTER,
-                         * // CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                         * // CSVWriter.DEFAULT_LINE_END
-                         * );
-                         * dbWriter.writeNext(new String[] { "core.externalId", "core.reference",
-                         * "core.assignable",
-                         * "core.name",
-                         * "core.description" }, APPLY_QUOTES_TO_ALL);
-                         * 
-                         * schemaWriter = new CSVWriter(
-                         * new BufferedWriter(new FileWriter(this.outFolder + "/" + SCHEMA_FILENAME)));
-                         * schemaWriter.writeNext(new String[] { "core.externalId", "core.reference",
-                         * "core.assignable",
-                         * "core.name",
-                         * "core.description" }, APPLY_QUOTES_TO_ALL);
-                         * 
-                         * tableWriter = new CSVWriter(
-                         * new BufferedWriter(new FileWriter(outFolder + "/" + TABLE_FILENAME)));
-                         * tableWriter.writeNext(new String[] { "core.externalId", "core.name",
-                         * "core.reference",
-                         * "core.assignable",
-                         * "core.description", "core.comment" }, APPLY_QUOTES_TO_ALL);
-                         * 
-                         * columnWriter = new CSVWriter(
-                         * new BufferedWriter(new FileWriter(outFolder + "/" + TABLECOL_FILENAME)));
-                         * columnWriter.writeNext(new String[] { "core.externalId", "core.name",
-                         * "core.reference",
-                         * "core.assignable",
-                         * "com.infa.odin.models.relational.Datatype",
-                         * "com.infa.odin.models.relational.DatatypeLength",
-                         * "core.Position",
-                         * "core.description" }, APPLY_QUOTES_TO_ALL);
-                         * 
-                         * viewWriter = new CSVWriter(new BufferedWriter(new FileWriter(outFolder + "/"
-                         * + VIEW_FILENAME)));
-                         * viewWriter.writeNext(new String[] { "core.externalId", "core.name",
-                         * "core.reference",
-                         * "core.assignable",
-                         * "core.description", "core.comment",
-                         * RELATIONAL_PACKAGE + ".sourceStatementText" },
-                         * APPLY_QUOTES_TO_ALL);
-                         * 
-                         * viewColumnWriter = new CSVWriter(
-                         * new BufferedWriter(new FileWriter(outFolder + "/" + VIEWCOL_FILENAME)));
-                         * viewColumnWriter.writeNext(new String[] { "core.externalId", "core.name",
-                         * "core.reference",
-                         * "core.assignable",
-                         * "com.infa.odin.models.relational.Datatype",
-                         * "com.infa.odin.models.relational.DatatypeLength",
-                         * "core.Position",
-                         * "core.description", "com.infa.odin.models.relational.expression" },
-                         * APPLY_QUOTES_TO_ALL);
-                         * 
-                         */
+                        File lineageByIdFolderInternal = new File(
+                                        String.valueOf(this.outFolder + "/" + idInternalOnlyLineageFolder));
+                        if (!lineageByIdFolderInternal.exists()) {
+                                System.out.println("\tfolder: " + this.outFolder + "/" + idInternalOnlyLineageFolder +
+                                                " does not exist, creating it");
+                                lineageByIdFolderInternal.mkdir();
+                        } // File linksDenodoOnlyByIdWriterTest = new File(
+                          // String.valueOf(this.outFolder + "_" + idInternalOnlyLineageFolder));
+                          // if (!linksDenodoOnlyByIdWriterTest.exists()) {
+                          // System.out.println("\tfolder: " + this.outFolder + "_" +
+                          // idInternalOnlyLineageFolder
+                          // + " does not exist, creating it");
+                          // lineageByIdFolder.mkdir();
+                          // }
 
                         this.linksWriter = new CSVWriter(
                                         new BufferedWriter(new FileWriter(this.outFolder + "/" +
@@ -191,7 +149,7 @@ public class CDGCWriterExternalOnly {
                                         "core.assignable", "core.name" }, APPLY_QUOTES_TO_ALL);
 
                         this.linksByIdWriter = new CSVWriter(
-                                        new BufferedWriter(new FileWriter(this.outFolder + "/cdgc_id_lineage/" +
+                                        new BufferedWriter(new FileWriter(this.outFolder + "/" + idLineageFolder + "/" +
                                                         LINKS_FILENAME)));
                         linksByIdWriter.writeNext(new String[] { "Source", "Target",
                                         "Association" }, APPLY_QUOTES_TO_ALL);
@@ -220,6 +178,13 @@ public class CDGCWriterExternalOnly {
                                                         REF_DATAELEMENT_FILENAME)));
                         hybridDataElementWriter.writeNext(new String[] { "core.externalId", "core.Reference",
                                         "core.assignable", "core.name" }, APPLY_QUOTES_TO_ALL);
+
+                        linksDenodoOnlyByIdWriter = new CSVWriter(
+                                        new BufferedWriter(new FileWriter(
+                                                        this.outFolder + "/" + idInternalOnlyLineageFolder + "/" +
+                                                                        INTERNAL_ONLY_LINKS_FILENAME)));
+                        linksDenodoOnlyByIdWriter.writeNext(new String[] { "Source", "Target",
+                                        "Association" }, APPLY_QUOTES_TO_ALL);
 
                         System.out.println("\tCDGC Files initialized");
 
@@ -252,6 +217,8 @@ public class CDGCWriterExternalOnly {
                         hybridDataSourceWriter.close();
                         hybridDataSetWriter.close();
                         hybridDataElementWriter.close();
+
+                        linksDenodoOnlyByIdWriter.close();
 
                         linksByIdWriter.close();
                 } catch (IOException e) {
@@ -310,8 +277,10 @@ public class CDGCWriterExternalOnly {
                         zipOut.close();
                         fos.close();
 
+                        // zip file for external lineage only (id + connection assignments)
                         fos = new FileOutputStream(
-                                        outFolder + "/" + idLineageFolder + "/denodo_scanner_hybrid_lineageonly.zip");
+                                        outFolder + "/" + idLineageFolder
+                                                        + "/denodo_scanner_hybrid_lineageonly.zip");
                         zipOut = new ZipOutputStream(fos);
                         for (String srcFile : hybFiles) {
                                 File fileToZip = new File(srcFile);
@@ -330,6 +299,29 @@ public class CDGCWriterExternalOnly {
                         zipOut.close();
                         fos.close();
 
+                        // zip file for id only (no upstream connection assignments)
+                        fos = new FileOutputStream(
+                                        outFolder + "/" + idInternalOnlyLineageFolder
+                                                        + "/denodo_scanner_internal_lineageonly.zip");
+                        zipOut = new ZipOutputStream(fos);
+                        File fileToZip = new File(
+                                        outFolder + "/" + idInternalOnlyLineageFolder + "/"
+                                                        + INTERNAL_ONLY_LINKS_FILENAME);
+                        FileInputStream fis;
+                        fis = new FileInputStream(fileToZip);
+                        ZipEntry zipEntry = new ZipEntry("links.csv");
+                        zipOut.putNextEntry(zipEntry);
+
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = fis.read(bytes)) >= 0) {
+                                zipOut.write(bytes, 0, length);
+                        }
+                        fis.close();
+
+                        zipOut.close();
+                        fos.close();
+
                 } catch (FileNotFoundException e) {
                         e.printStackTrace();
                 } catch (IOException e) {
@@ -340,7 +332,7 @@ public class CDGCWriterExternalOnly {
         }
 
         protected void createDatabase(String dbName) {
-                System.out.println("\tcreating database: " + dbName);
+                // System.out.println("\tcreating database: " + dbName);
 
                 try {
                         refResourceWriter.writeNext(new String[] { dbName, "TRUE",
@@ -532,13 +524,16 @@ public class CDGCWriterExternalOnly {
                 String toClass = "";
                 fromClass = idClassTypes.get(fromId);
                 toClass = idClassTypes.get(toId);
-                System.out.println("    from=" + fromClass);
-                System.out.println("      to=" + toClass);
                 // write the custom linegae - using privided resource identifier as a prefix..
                 // String resourcePrefix = "0b659883-52e7-390a-a0f2-1aad13135725://";
                 // assume resourceId has been set
 
                 linksByIdWriter.writeNext(new String[] { resourceId + "://" + fromId + "~" + fromClass,
+                                resourceId + "://" + toId + "~" + toClass,
+                                linkType
+                });
+                linksDenodoOnlyByIdWriter.writeNext(new String[] { resourceId + "://" +
+                                fromId + "~" + fromClass,
                                 resourceId + "://" + toId + "~" + toClass,
                                 linkType
                 });
@@ -556,9 +551,10 @@ public class CDGCWriterExternalOnly {
                 String wrappedTable = wrapperObj.getRelation();
                 String wrapperType = wrapperObj.getType();
 
-                System.out.println("creating CDGC ref objects for " + dbName + "." + schemaName + "." + tableName
-                                + " with "
-                                + columns.size() + "columns");
+                // System.out.println("creating CDGC ref objects for " + dbName + "." +
+                // schemaName + "." + tableName
+                // + " with "
+                // + columns.size() + "columns");
 
                 if (wrapperObj.getSqlSentance() != null) {
                         // skip??
@@ -573,8 +569,9 @@ public class CDGCWriterExternalOnly {
                 }
 
                 String conectionName = wrapperObj.getDataSource() + "__" + wrapperObj.getType();
-                System.out.println("connection name: " + conectionName + " wrappedSch=" + wrappedSchema
-                                + " wrappedTable=" + wrappedTable);
+                // System.out.println("connection name: " + conectionName + " wrappedSch=" +
+                // wrappedSchema
+                // + " wrappedTable=" + wrappedTable);
 
                 String dataSourceId = conectionName + "." + wrappedSchema;
                 // add schema data source only if not already there

@@ -1,6 +1,13 @@
 Version History/Changes for Denodo Scanner
 ------------------------------------------
 
+2023/12/14 - experimental version, CDGC integration only for lineage
+  - this version will export additional folders for CDGC integration.  it will create only lineage links using object id's to be used with the JDBC scanner
+  - using this mode will mean that the JDBC scan can be used for scanning/profiling, and the lineage created using this custom scanner will augment what the JDBC scanner creates
+  - use the .zip file created in <out_folder>_CDGC_lineage_only/cdgc_id_lineage_internal/denodo_scanner_internal_lineageonly.zip
+  - for this to work, the following configuration settings must be used
+    - denodo.databaseName=JDBC    (this is the name of the database created by the JDBC scanner)
+    - CDGC.resourceId=<resource-id> get the resource id from CDGC after executing the JDBC scan
 2023/03/22 - v1.1.010
 - minor update to EDC exporter for Axon integration
   - add new property to scanner properties file
