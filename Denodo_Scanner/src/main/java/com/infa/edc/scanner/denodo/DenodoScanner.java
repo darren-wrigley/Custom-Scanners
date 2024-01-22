@@ -95,6 +95,8 @@ public class DenodoScanner extends GenericScanner {
 
     protected CSVWriter filteredOutWriter = null;
     protected CSVWriter missingObjectWriter = null;
+    protected CSVWriter externalLineageOnlyWriter = null;
+
     protected int missingObjectCount = 0;
 
     protected CDGCWriter cdgcWriter = new CDGCWriter();
@@ -1210,6 +1212,9 @@ public class DenodoScanner extends GenericScanner {
                                 String lefttabId = databaseName + "/" + leftDB + "/" + leftVW;
                                 String righttabId = databaseName + "/" + dbName + "/" + viewName;
                                 linksWriter.writeNext(new String[] { "core.DataSetDataFlow", lefttabId, righttabId });
+                                externalLineageOnlyWriter
+                                        .writeNext(new String[] { "core.DataSetDataFlow", "Denodo_jdbc_db",
+                                                "Denodo_jdbc_db", leftDB + "/" + leftVW, dbName + "/" + viewName });
 
                                 // note: cdgc does not need dataset and dataement links - will infer dataset
                                 cdgcWriter.writeLineage(lefttabId, righttabId, "core.DataSetDataFlow");
@@ -1230,6 +1235,10 @@ public class DenodoScanner extends GenericScanner {
                                     schemaSchemaLinks.add(schemaSchemaKey);
                                     linksWriter.writeNext(new String[] { "core.DataSourceDataFlow",
                                             databaseName + "/" + leftDB, databaseName + "/" + dbName });
+                                    externalLineageOnlyWriter
+                                            .writeNext(new String[] { "core.DataSourceDataFlow", "Denodo_jdbc_db",
+                                                    "Denodo_jdbc_db", leftDB, dbName });
+
                                     // cdgcWriter.writeLineage(databaseName + "/" + leftDB, databaseName + "/" +
                                     // dbName,
                                     // "core.DataSourceDataFlow");
@@ -1493,6 +1502,12 @@ public class DenodoScanner extends GenericScanner {
                             String rightId = databaseName + "/" + tgtKey;
                             if (!colUniqeLineage.contains(leftId + ":" + rightId)) {
                                 linksWriter.writeNext(new String[] { "core.DirectionalDataFlow", leftId, rightId });
+                                // hack - denodo to denodo lineage (for jdbc)
+                                externalLineageOnlyWriter.writeNext(
+                                        new String[] { "core.DirectionalDataFlow", "Denodo_jdbc_db", "Denodo_jdbc_db",
+                                                srcKey,
+                                                tgtKey });
+
                                 cdgcWriter.writeLineage(leftId, rightId, "core.DirectionalDataFlow");
                                 cdgcWriterExternalOnly.writeLineage(leftId, rightId, "core.DirectionalDataFlow");
                                 // System.out.println("\t\t\t\twriting column level lineage: " + leftId + " ==>>
@@ -1518,6 +1533,12 @@ public class DenodoScanner extends GenericScanner {
                                         String rightId = databaseName + "/" + tgtKey;
                                         linksWriter.writeNext(
                                                 new String[] { "core.DirectionalDataFlow", leftId, rightId });
+                                        // hack - denodo to denodo lineage (for jdbc)
+                                        externalLineageOnlyWriter.writeNext(
+                                                new String[] { "core.DirectionalDataFlow!!!", "Denodo_jdbc_db",
+                                                        "Denodo_jdbc_db",
+                                                        sourceDB + "/" + sourceVw + "/" + exprPart,
+                                                        tgtKey });
                                         cdgcWriter.writeLineage(leftId, rightId, "core.DirectionalDataFlow");
                                         cdgcWriterExternalOnly.writeLineage(leftId, rightId,
                                                 "core.DirectionalDataFlow");
@@ -1679,7 +1700,7 @@ public class DenodoScanner extends GenericScanner {
                         int custLineageCount = 0;
                         if (theWr != null) {
                             custLineageCount += theWr.writeLineage(custLineageWriter, databaseName, schema, table,
-                                    tableMap.get(table), exportCustLineageInScanner);
+                                    tableMap.get(table), exportCustLineageInScanner, externalLineageOnlyWriter);
                             allCustLineageCount += custLineageCount;
 
                             // cdgc ref objects
@@ -1936,6 +1957,7 @@ public class DenodoScanner extends GenericScanner {
             filteredOutWriter.writeNext(new String[] { "object", "filter type" });
 
             String lineageFileName = customMetadataFolder + "/" + "lineage.csv";
+            String externalOnlylineageFileName = customMetadataFolder + "/" + "lineage_external_only.csv";
             // System.out.println("Step 3.1: initializing denodo specific files: " +
             // lineageFileName);
             // otherObjWriter = new CSVWriter(new FileWriter(otherObjectCsvName), ',',
@@ -1943,6 +1965,12 @@ public class DenodoScanner extends GenericScanner {
             custLineageWriter = new CSVWriter(new FileWriter(lineageFileName));
             custLineageWriter.writeNext(new String[] { "Association", "From Connection", "To Connection",
                     "From Object", "To Object", "com.infa.ldm.etl.ETLContext" });
+
+            // hack - for creating lineage only to link to jdbc scan
+            externalLineageOnlyWriter = new CSVWriter(new FileWriter(externalOnlylineageFileName));
+            externalLineageOnlyWriter.writeNext(new String[] { "Association", "From Connection", "To Connection",
+                    "From Object", "To Object" });
+
             // if (exportCustLineageInScanner) {
             // custLineageWriter.writeNext(new String[] { "Association", "From Connection",
             // "To Connection",
@@ -1982,6 +2010,7 @@ public class DenodoScanner extends GenericScanner {
 
         try {
             custLineageWriter.close();
+            externalLineageOnlyWriter.close();
             if (debugWriter != null) {
                 debugWriter.flush();
                 debugWriter.close();

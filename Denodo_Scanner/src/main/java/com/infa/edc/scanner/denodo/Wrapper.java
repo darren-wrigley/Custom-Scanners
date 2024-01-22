@@ -233,7 +233,7 @@ public class Wrapper {
     }
 
     protected int writeLineage(CSVWriter lineageWriter, String toDB, String toSch, String toTab, List<String> columns,
-            boolean exportCustLineageInScanner) {
+            boolean exportCustLineageInScanner, CSVWriter hackedExternallineageWriter) {
         int custLineageCount = 0;
         String connectionName = "";
         if (dataSourceObj != null) {
@@ -275,6 +275,11 @@ public class Wrapper {
 
                 lineageWriter.writeNext(new String[] { "core.DataSetDataFlow", connectionName.replaceAll("\"", ""), "",
                         fromKey, "$etlRes://" + toDB + "/" + toSch + "/" + toTab, "" });
+
+                hackedExternallineageWriter
+                        .writeNext(new String[] { "core.DataSetDataFlow", connectionName.replaceAll("\"", ""),
+                                "Denodo_jdbc_db", fromKey, toSch + "/" + toTab });
+
             }
 
             for (String tgtCol : columns) {
@@ -288,11 +293,22 @@ public class Wrapper {
                         lineageWriter.writeNext(new String[] { "core.DirectionalDataFlow", connectionName, "", // to
                                                                                                                // connection
                                 fromKey + "/" + this.outputSchema.get(tgtCol), toKey + "/" + tgtCol, "" });
+                        hackedExternallineageWriter
+                                .writeNext(
+                                        new String[] { "core.DirectionalDataFlow", connectionName.replaceAll("\"", ""),
+                                                "Denodo_jdbc_db", fromKey + "/" + this.outputSchema.get(tgtCol),
+                                                toSch + "/" + toTab + "/" + tgtCol });
+
                     } else {
                         // re
                         lineageWriter.writeNext(new String[] { "core.DirectionalDataFlow", connectionName, "", // to
                                                                                                                // connection
                                 fromKey + "/" + this.outputSchema.get(tgtCol), toKey + "/" + tgtCol });
+                        hackedExternallineageWriter
+                                .writeNext(
+                                        new String[] { "core.DirectionalDataFlow", connectionName.replaceAll("\"", ""),
+                                                "Denodo_jdbc_db", fromKey + "/" + this.outputSchema.get(tgtCol),
+                                                toSch + "/" + toTab + "/" + tgtCol });
                     }
                 }
 
